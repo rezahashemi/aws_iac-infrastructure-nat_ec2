@@ -1,0 +1,10 @@
+[
+  { "ParameterKey": "Account", "ParameterValue": "AutomateTheCloud|atc|480685085376" },
+  { "ParameterKey": "CodeDeployApplication", "ParameterValue": "Infrastructure-NAT|infrastructure-nat" },
+  { "ParameterKey": "Function", "ParameterValue": "NAT|nat" },
+  { "ParameterKey": "LastUpdate", "ParameterValue": "2019-10-06 20:42:11.624 UTC" },
+  { "ParameterKey": "Organization", "ParameterValue": "CodeDeploy|codedeploy|us-east-1|prd" },
+  { "ParameterKey": "Owner", "ParameterValue": "David Singer|aws-ops@automatethe.cloud" },
+  { "ParameterKey": "Project", "ParameterValue": "Infrastructure|infrastructure" },
+  { "ParameterKey": "StackReferenceInitialize", "ParameterValue": "account-initialize-us-east-1" } 
+]

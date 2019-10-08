@@ -1,0 +1,9 @@
+[
+  { "Key": "Organization", "Value": "Shared Services" },
+  { "Key": "Project", "Value": "NAT" },
+  { "Key": "Function", "Value": "Shared Services" },
+  { "Key": "Environment", "Value": "prd" },
+  { "Key": "Region", "Value": "us-east-1" },
+  { "Key": "Owner", "Value": "David Singer" },
+  { "Key": "Contact", "Value": "aws-ops@automatethe.cloud" }
+]

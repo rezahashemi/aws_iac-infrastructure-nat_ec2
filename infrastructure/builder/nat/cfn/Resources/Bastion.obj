@@ -1,0 +1,12 @@
+##---------------------------------------------------------------------------------------
+# object:  Project/Bastion
+##---------------------------------------------------------------------------------------
+InstanceEgressGlobal:
+  Type: "AWS::EC2::SecurityGroupEgress"
+  Properties:
+    GroupId:               !Ref "SecurityGroupInstance"
+    IpProtocol:            "-1"
+    FromPort:              "0"
+    ToPort:                "65535"
+    CidrIp:                "0.0.0.0/0"
+    Description:           "All Egress"

@@ -1,0 +1,14 @@
+version: 0.0
+os: linux
+files:
+  - source: bundle
+    destination: /apps/bundle
+hooks:
+  BeforeInstall:
+    - location: scripts/prepare.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: scripts/configure.sh
+      timeout: 300
+      runas: root

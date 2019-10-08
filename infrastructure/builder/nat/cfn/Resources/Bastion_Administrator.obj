@@ -1,0 +1,29 @@
+##---------------------------------------------------------------------------------------
+# object: Project/Bastion_Administrator
+##---------------------------------------------------------------------------------------
+PolicyBastionAdministratorAccess:
+  Type: AWS::IAM::Policy
+  Properties:
+    PolicyName: "BastionAdministratorAccess"
+    Roles:
+      - "SAML_Administrator"
+    PolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: "Allow"
+          Action:
+            - "ec2:DescribeInstances"
+          Resource: "*"
+
+        ##---------------------------------------------------------------------
+        ## david.singer:2101
+        - Effect: "Allow"
+          Action:
+            - "ec2-instance-connect:SendSSHPublicKey"
+          Condition:
+            StringEquals:
+              ec2:osuser: david.singer
+            StringLike:
+              aws:userid: "*:david.singer"
+          Resource:
+            - !Join [ "", [ "arn:aws:ec2:*:", !Ref "AWS::AccountId", ":instance/*" ] ]

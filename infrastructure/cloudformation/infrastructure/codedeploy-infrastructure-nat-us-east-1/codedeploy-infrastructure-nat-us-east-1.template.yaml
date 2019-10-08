@@ -1,0 +1,260 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CodeDeploy - Infrastructure - NAT - us-east-1"
+##-------------------------------------------------------------------------------------------------
+Parameters:
+  ##---------------------------------------------------------------------------------------
+  # object: CodeDeploy/CodeDeployApplication
+  ##---------------------------------------------------------------------------------------
+  CodeDeployApplication:
+    Description: "CodeDeploy Application (CodeDeployApplicationName | CodeDeployApplicationAbbr)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Account
+  ##---------------------------------------------------------------------------------------
+  Account:
+    Description: "Details: Account (AccountName | AccountAbbr | AccountNumber)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Function
+  ##---------------------------------------------------------------------------------------
+  Function:
+    Description: "Details: Function (FunctionName | FunctionAbbr)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/LastUpdate
+  ##---------------------------------------------------------------------------------------
+  LastUpdate:
+    Description: "Details: Last Update"
+    Type: String
+    Default: 0
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Organization
+  ##---------------------------------------------------------------------------------------
+  Organization:
+    Description: "Details: Organization (OrganizationName | OrganizationAbbr | region | environment)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Owner
+  ##---------------------------------------------------------------------------------------
+  Owner:
+    Description: "Details: Owner (Owner | Contact)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Project
+  ##---------------------------------------------------------------------------------------
+  Project:
+    Description: "Details: Project (ProjectName | ProjectAbbr)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceInitialize
+  ##---------------------------------------------------------------------------------------
+  StackReferenceInitialize:
+    Description: "Stack Reference: Initialize"
+    Type: String
+
+##-------------------------------------------------------------------------------------------------
+Resources:
+  ##---------------------------------------------------------------------------------------
+  # object: CodeDeploy/Application/Server
+  ##---------------------------------------------------------------------------------------
+  CodeDeployApplicationApp:
+    Type: "AWS::CodeDeploy::Application"
+    Properties:
+      ApplicationName: !Select [0, !Split ["|", !Ref "CodeDeployApplication"]]
+      ComputePlatform: "Server"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Custom/StackReferenceResultsInitialize
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsInitialize:
+    Type: "Custom::StackReferenceResultsInitialize"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceInitialize"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object: IAM/Role/CodeDeployServer
+  ##---------------------------------------------------------------------------------------
+  RoleCodeDeploy:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Join [ "_", [ "codedeploy", !Select [1, !Split ["|", !Ref "CodeDeployApplication"]], !Ref "AWS::Region" ] ]
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "codedeploy.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        -
+          PolicyName: !Join [ "_", [ "codedeploy", !Select [1, !Split ["|", !Ref "CodeDeployApplication"]], !Ref "AWS::Region" ] ]
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "autoscaling:CompleteLifecycleAction"
+                  - "autoscaling:DeleteLifecycleHook"
+                  - "autoscaling:DescribeAutoScalingGroups"
+                  - "autoscaling:DescribeLifecycleHooks"
+                  - "autoscaling:PutLifecycleHook"
+                  - "autoscaling:RecordLifecycleActionHeartbeat"
+                  - "ec2:DescribeInstances"
+                  - "ec2:DescribeInstanceStatus"
+                  - "tag:GetTags"
+                  - "tag:GetResources"
+                  - "sns:Publish"
+                  - "cloudwatch:DescribeAlarms"
+                  - "elasticloadbalancing:DescribeLoadBalancers"
+                  - "elasticloadbalancing:DescribeInstanceHealth"
+                  - "elasticloadbalancing:RegisterInstancesWithLoadBalancer"
+                  - "elasticloadbalancing:DeregisterInstancesFromLoadBalancer"
+                  - "elasticloadbalancing:DescribeTargetGroups"
+                  - "elasticloadbalancing:DescribeTargetHealth"
+                  - "elasticloadbalancing:RegisterTargets"
+                  - "elasticloadbalancing:DeregisterTargets"
+                Resource: "*"
+
+##-------------------------------------------------------------------------------------------------
+Outputs:
+  ##---------------------------------------------------------------------------------------
+  # object: CodeDeploy/CodeDeployApplicationAbbr
+  ##---------------------------------------------------------------------------------------
+  CodeDeployApplicationAbbr:
+    Description: "CodeDeploy: Application Abbreviation"
+    Value: !Select [1, !Split ["|", !Ref "CodeDeployApplication"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-CodeDeployApplicationAbbr"
+
+  ##---------------------------------------------------------------------------------------
+  # object: CodeDeploy/CodeDeployApplicationName
+  ##---------------------------------------------------------------------------------------
+  CodeDeployApplicationName:
+    Description: "CodeDeploy: ApplicationName"
+    Value: !Select [0, !Split ["|", !Ref "CodeDeployApplication"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-CodeDeployApplicationName"
+
+  ##---------------------------------------------------------------------------------------
+  # object: CodeDeploy/CodeDeployRoleArn
+  ##---------------------------------------------------------------------------------------
+  CodeDeployRoleArn:
+    Description: "CodeDeploy: Role ARN"
+    Value: !GetAtt "RoleCodeDeploy.Arn"
+    Export:
+      Name: !Sub "${AWS::StackName}-CodeDeployRoleArn"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Contact
+  ##---------------------------------------------------------------------------------------
+  Contact:
+    Description: "Details: Contact"
+    Value: !Select [1, !Split ["|", !Ref "Owner"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-Contact"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Environment
+  ##---------------------------------------------------------------------------------------
+  Environment:
+    Description: "Details: Environment"
+    Value: !Select [3, !Split ["|", !Ref "Organization"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-Environment"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/FunctionAbbr
+  ##---------------------------------------------------------------------------------------
+  FunctionAbbr:
+    Description: "Details: FunctionAbbr"
+    Value: !Select [1, !Split ["|", !Ref "Function"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-FunctionAbbr"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/FunctionName
+  ##---------------------------------------------------------------------------------------
+  FunctionName:
+    Description: "Details: FunctionName"
+    Value: !Select [0, !Split ["|", !Ref "Function"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-FunctionName"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/LastUpdate
+  ##---------------------------------------------------------------------------------------
+  LastUpdate:
+    Description: "Details: LastUpdate"
+    Value: !Ref "LastUpdate"
+    Export:
+      Name: !Sub "${AWS::StackName}-LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/OrganizationAbbr
+  ##---------------------------------------------------------------------------------------
+  OrganizationAbbr:
+    Description: "Details: OrganizationAbbr"
+    Value: !Select [1, !Split ["|", !Ref "Organization"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-OrganizationAbbr"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/OrganizationName
+  ##---------------------------------------------------------------------------------------
+  OrganizationName:
+    Description: "Details: OrganizationName"
+    Value: !Select [0, !Split ["|", !Ref "Organization"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-OrganizationName"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Owner
+  ##---------------------------------------------------------------------------------------
+  Owner:
+    Description: "Details: Owner"
+    Value: !Select [0, !Split ["|", !Ref "Owner"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-Owner"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/ProjectAbbr
+  ##---------------------------------------------------------------------------------------
+  ProjectAbbr:
+    Description: "Details: ProjectAbbr"
+    Value: !Select [1, !Split ["|", !Ref "Project"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-ProjectAbbr"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/ProjectName
+  ##---------------------------------------------------------------------------------------
+  ProjectName:
+    Description: "Details: ProjectName"
+    Value: !Select [0, !Split ["|", !Ref "Project"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-ProjectName"
+
+  ##---------------------------------------------------------------------------------------
+  # object: S3/S3BucketArtifacts_Initialize
+  ##---------------------------------------------------------------------------------------
+  S3BucketArtifacts:
+    Description: "S3 Bucket: Artifacts"
+    Value: !GetAtt "StackReferenceResultsInitialize.S3BucketArtifacts"
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketArtifacts"
+

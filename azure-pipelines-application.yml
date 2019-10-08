@@ -1,0 +1,87 @@
+##-------------------------------------------------------------------------------------------------
+# purpose: AWS IaC - Infrastructure - NAT [EC2] (Application)
+##-------------------------------------------------------------------------------------------------
+name: $(Date:yyyy.MM.dd)$(Rev:.r)
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - /application
+
+##-------------------------------------------------------------------------------------------------
+variables:
+  - name: build.subdirectory
+    value: 'application'
+
+  - name: artifact.id
+    value: 'infrastructure-nat'
+  - name: artifact.version
+    value: $(Build.BuildNumber)
+
+  - name: init.azure_devops
+    value: yes
+
+##-------------------------------------------------------------------------------------------------
+jobs:
+
+##---------------------------------------------------------------------------------------
+- job: build
+  displayName: 'Build'
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  workspace:
+    clean: all
+
+  steps:
+  ##-----------------------------------------------------------------------------
+  # Setup
+  - script: |
+      CID_URL_LATEST="$(curl -s https://api.github.com/repos/AutomateTheCloud/atc-cid/releases/latest | grep "browser_download_url.*tgz" | cut -d : -f 2,3 | tr -d \" | awk '{$1=$1};1')"
+      sudo mkdir -p /opt/cid
+      curl -L ${CID_URL_LATEST} | sudo tar zxf - -C /opt/cid
+      sudo bash /opt/cid/scripts/utility/install.sh -d /usr/local/sbin/
+    displayName: 'Setup - Install'
+    name: setup_install
+
+  - script: |
+      cid.initialize_workspace
+    displayName: 'Setup - Initialize Workspace'
+    name: setup_initialize
+
+  ##-----------------------------------------------------------------------------
+  # Package
+  - script: mkdir -p $(workspace.directory.package)/bundle
+    displayName: 'Package - Generate Package Directories'
+
+  - script: rsync -r --exclude='.git/' $(workspace.directory.repository)/$(build.subdirectory)/codedeploy/ $(workspace.directory.package)/
+    displayName: 'Package - Copy CodeDeploy files to Package Directory'
+
+  - script: echo "version=$(artifact.version)" > $(workspace.directory.package)/bundle/version.info
+    displayName: 'Package - Generate Version Info file'
+
+  - task: ArchiveFiles@2
+    displayName: Package - Generate Package Tarball
+    inputs:
+      rootFolderOrFile: $(workspace.directory.package)
+      includeRootFolder: false
+      archiveType: 'tar'
+      tarCompression: 'gz'
+      archiveFile: '$(workspace.directory.artifacts)/$(artifact.id)-$(artifact.version).tgz'
+      replaceExistingArchive: true
+      verbose: true
+
+  ##-----------------------------------------------------------------------------
+  # Archive
+  - script: echo "codedeploy.revision_package=$(artifact.id)-$(artifact.version).tgz" > $(workspace.directory.artifacts)/revision_package.info
+    displayName: 'Archive - Revision Package Info'
+
+  - task: PublishBuildArtifacts@1
+    displayName: Archive - Publish Pipeline Build Artifacts
+    inputs:
+      pathtoPublish: '$(workspace.directory.artifacts)'
+      artifactName: 'build'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))

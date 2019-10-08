@@ -1,0 +1,16 @@
+[stack_name]=codedeploy-infrastructure-nat-us-east-1
+[stack_description]=CodeDeploy - Infrastructure - NAT - us-east-1
+[deployment_timeout]=15
+[account_name]=AutomateTheCloud
+[account_abbr]=atc
+[account_number]=480685085376
+[organization_name]=CodeDeploy
+[organization_abbr]=codedeploy
+[region]=us-east-1
+[environment]=prd
+[project_name]=Infrastructure
+[project_abbr]=infrastructure
+[function_name]=NAT
+[function_abbr]=nat
+[owner]=David Singer
+[contact]=aws-ops@automatethe.cloud

@@ -1,0 +1,16 @@
+[stack_name]=nat-share-prd-us-east-1
+[stack_description]=NAT - Shared Services (prd) - us-east-1
+[deployment_timeout]=35
+[account_name]=AutomateTheCloud
+[account_abbr]=atc
+[account_number]=480685085376
+[organization_name]=Shared Services
+[organization_abbr]=share
+[region]=us-east-1
+[environment]=prd
+[project_name]=NAT
+[project_abbr]=nat
+[function_name]=Shared Services
+[function_abbr]=share
+[owner]=David Singer
+[contact]=aws-ops@automatethe.cloud

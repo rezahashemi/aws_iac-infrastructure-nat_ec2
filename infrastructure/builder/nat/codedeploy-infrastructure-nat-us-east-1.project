@@ -1,0 +1,29 @@
+Name:                                       codedeploy-infrastructure-nat-us-east-1
+Description:                                CodeDeploy - Infrastructure - NAT - us-east-1
+Updated:                                    2019/10/06 15:30:00 EST
+
+Details:
+  Project:                                  Infrastructure|infrastructure
+  Function:                                 NAT|nat
+  Organization:                             CodeDeploy|codedeploy|us-east-1|prd
+  Account:                                  AutomateTheCloud|atc|480685085376
+  Owner:                                    David Singer|aws-ops@automatethe.cloud
+  DeploymentTimeout:                        15
+
+##-------------------------------------------------------------------------------------------------
+Parameters:
+  #-- Stack Reference -------------------------------------------------------------------
+  StackReferenceInitialize:                 account-initialize-us-east-1
+
+  #-- CodeDeploy ------------------------------------------------------------------------
+  CodeDeployApplication:                    Infrastructure-NAT|infrastructure-nat
+
+##-------------------------------------------------------------------------------------------------
+Paradigm:
+  Templates:
+    - CodeDeploy/Application_Server
+  Parameters:
+  Mappings:
+  Conditions:
+  Resources:
+  Outputs:

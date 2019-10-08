@@ -1,0 +1,9 @@
+[
+  { "Key": "Organization", "Value": "CodeDeploy" },
+  { "Key": "Project", "Value": "Infrastructure" },
+  { "Key": "Function", "Value": "NAT" },
+  { "Key": "Environment", "Value": "prd" },
+  { "Key": "Region", "Value": "us-east-1" },
+  { "Key": "Owner", "Value": "David Singer" },
+  { "Key": "Contact", "Value": "aws-ops@automatethe.cloud" }
+]

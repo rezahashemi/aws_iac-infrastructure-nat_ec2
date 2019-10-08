@@ -1,0 +1,1661 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "NAT - Shared Services (prd) - us-east-1"
+##-------------------------------------------------------------------------------------------------
+Parameters:
+  ##---------------------------------------------------------------------------------------
+  # object: AutoScaling/AutoScalingDetails
+  ##---------------------------------------------------------------------------------------
+  AutoScalingDetails:
+    Description: "AutoScaling: Details (InstanceCountMaximum|OnDemandPercentageAboveBaseCapacity|AutoScalingCooldown|AutoScalingGracePeriod|AutoScalingTimeout)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: AutoScaling/LaunchTemplateUpdated
+  ##---------------------------------------------------------------------------------------
+  LaunchTemplateUpdated:
+    Description: "Launch Template Updated Timestamp (changing this will trigger a redeployment)"
+    Type: String
+    Default: 0
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Account
+  ##---------------------------------------------------------------------------------------
+  Account:
+    Description: "Details: Account (AccountName | AccountAbbr | AccountNumber)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Function
+  ##---------------------------------------------------------------------------------------
+  Function:
+    Description: "Details: Function (FunctionName | FunctionAbbr)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/LastUpdate
+  ##---------------------------------------------------------------------------------------
+  LastUpdate:
+    Description: "Details: Last Update"
+    Type: String
+    Default: 0
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Organization
+  ##---------------------------------------------------------------------------------------
+  Organization:
+    Description: "Details: Organization (OrganizationName | OrganizationAbbr | region | environment)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Owner
+  ##---------------------------------------------------------------------------------------
+  Owner:
+    Description: "Details: Owner (Owner | Contact)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Project
+  ##---------------------------------------------------------------------------------------
+  Project:
+    Description: "Details: Project (ProjectName | ProjectAbbr)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: EIP/EnableElasticIp
+  ##---------------------------------------------------------------------------------------
+  EnableElasticIp:
+    Description: "Enable Elastic IP"
+    Type: String
+    Default: "no"
+    AllowedValues:
+      - ""
+      - "yes"
+      - "no"
+    ConstraintDescription: "yes/no"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/AMICustom
+  ##---------------------------------------------------------------------------------------
+  AMICustom:
+    Description: "AMI Custom (NamePrepend|NameAppend)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/InstanceType
+  ##---------------------------------------------------------------------------------------
+  InstanceType:
+    Description: "Instance Type (InstanceTypePrimary|InstanceTypeSecondary|LaunchEncryptedAMI)"
+    Type: String
+    Default: "t3.micro|t2.micro|encrypted"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/InstanceUsers
+  ##---------------------------------------------------------------------------------------
+  InstanceUsers:
+    Description: "Instance Users (UserName1:admin_flag|UserName2:admin_flag)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/KeypairOverride
+  ##---------------------------------------------------------------------------------------
+  KeypairOverride:
+    Description: "EC2 KeyPair (Override)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/SwapSize
+  ##---------------------------------------------------------------------------------------
+  SwapSize:
+    Description: "Swap Size (MB)"
+    Type: Number
+    Default: 256
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/VolumeSize
+  ##---------------------------------------------------------------------------------------
+  VolumeSize:
+    Description: "Volume Size (RootVolumeSize|ApplicationVolumeSize)"
+    Type: String
+    Default: "8|0"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Network/SubnetType
+  ##---------------------------------------------------------------------------------------
+  SubnetType:
+    Description: "Subnet Type"
+    Type: String
+    Default: "private"
+    AllowedValues:
+      - private
+      - public
+      - restricted
+    ConstraintDescription: "public, private, or restricted"
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/SNSSubscriptionEmail1
+  ##---------------------------------------------------------------------------------------
+  SNSSubscriptionEmail1:
+    Description: "SNS Subscription: Email (1)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/SNSSubscriptionEmail2
+  ##---------------------------------------------------------------------------------------
+  SNSSubscriptionEmail2:
+    Description: "SNS Subscription: Email (2)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/SNSSubscriptionEmail3
+  ##---------------------------------------------------------------------------------------
+  SNSSubscriptionEmail3:
+    Description: "SNS Subscription: Email (3)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/SNSSubscriptionEmail4
+  ##---------------------------------------------------------------------------------------
+  SNSSubscriptionEmail4:
+    Description: "SNS Subscription: Email (4)"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceAdministrative1
+  ##---------------------------------------------------------------------------------------
+  StackReferenceAdministrative1:
+    Description: "Stack Reference: Administrative1"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceAdministrative2
+  ##---------------------------------------------------------------------------------------
+  StackReferenceAdministrative2:
+    Description: "Stack Reference: Administrative2"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceCodeDeploy
+  ##---------------------------------------------------------------------------------------
+  StackReferenceCodeDeploy:
+    Description: "Stack Reference: CodeDeploy"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceEFS
+  ##---------------------------------------------------------------------------------------
+  StackReferenceEFS:
+    Description: "Stack Reference: EFS"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceSecurity1
+  ##---------------------------------------------------------------------------------------
+  StackReferenceSecurity1:
+    Description: "Stack Reference: Security1"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceSecurity2
+  ##---------------------------------------------------------------------------------------
+  StackReferenceSecurity2:
+    Description: "Stack Reference: Security2"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget10
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget10:
+    Description: "Stack Reference: Target10"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget1
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget1:
+    Description: "Stack Reference: Target1"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget2
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget2:
+    Description: "Stack Reference: Target2"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget3
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget3:
+    Description: "Stack Reference: Target3"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget4
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget4:
+    Description: "Stack Reference: Target4"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget5
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget5:
+    Description: "Stack Reference: Target5"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget6
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget6:
+    Description: "Stack Reference: Target6"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget7
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget7:
+    Description: "Stack Reference: Target7"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget8
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget8:
+    Description: "Stack Reference: Target8"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceTarget9
+  ##---------------------------------------------------------------------------------------
+  StackReferenceTarget9:
+    Description: "Stack Reference: Target9"
+    Type: String
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/StackReferenceVPC
+  ##---------------------------------------------------------------------------------------
+  StackReferenceVPC:
+    Description: "Stack Reference: VPC"
+    Type: String
+
+##-------------------------------------------------------------------------------------------------
+Conditions:
+  ##---------------------------------------------------------------------------------------
+  # object: EIP/EnabledElasticIp
+  ##---------------------------------------------------------------------------------------
+  EnabledElasticIp:
+    !Equals [ !Ref "EnableElasticIp", "yes" ]
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/ExistsApplicationVolumeSize
+  ##---------------------------------------------------------------------------------------
+  ExistsApplicationVolumeSize:
+    !Not [ !Or [ !Equals [!Select [1, !Split ["|", !Ref "VolumeSize"]], ""], !Equals [!Select [1, !Split ["|", !Ref "VolumeSize"]], "0"] ] ]
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/ExistsInstanceUsers
+  ##---------------------------------------------------------------------------------------
+  ExistsInstanceUsers:
+    !Not [!Equals [!Ref "InstanceUsers", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/ExistsKeypairOverride
+  ##---------------------------------------------------------------------------------------
+  ExistsKeypairOverride:
+    !Not [!Equals [!Ref "KeypairOverride", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/ExistsRootVolumeSize
+  ##---------------------------------------------------------------------------------------
+  ExistsRootVolumeSize:
+    !Not [ !Or [ !Equals [!Select [0, !Split ["|", !Ref "VolumeSize"]], ""], !Equals [!Select [0, !Split ["|", !Ref "VolumeSize"]], "0"] ] ]
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/ExistsSwapSize
+  ##---------------------------------------------------------------------------------------
+  ExistsSwapSize:
+    !Not [!Equals [!Ref SwapSize, ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: Network/SubnetTypePrivate
+  ##---------------------------------------------------------------------------------------
+  SubnetTypePrivate:
+    !Equals [!Ref "SubnetType", "private"]
+
+  ##---------------------------------------------------------------------------------------
+  # object: Network/SubnetTypePublic
+  ##---------------------------------------------------------------------------------------
+  SubnetTypePublic:
+    !Equals [!Ref "SubnetType", "public"]
+
+  ##---------------------------------------------------------------------------------------
+  # object: Network/SubnetTypeRestricted
+  ##---------------------------------------------------------------------------------------
+  SubnetTypeRestricted:
+    !Equals [!Ref "SubnetType", "restricted"]
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/ExistsSNSSubscriptionEmail1
+  ##---------------------------------------------------------------------------------------
+  ExistsSNSSubscriptionEmail1:
+    !Not [!Equals [!Ref SNSSubscriptionEmail1, ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/ExistsSNSSubscriptionEmail2
+  ##---------------------------------------------------------------------------------------
+  ExistsSNSSubscriptionEmail2:
+    !Not [!Equals [!Ref SNSSubscriptionEmail2, ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/ExistsSNSSubscriptionEmail3
+  ##---------------------------------------------------------------------------------------
+  ExistsSNSSubscriptionEmail3:
+    !Not [!Equals [!Ref SNSSubscriptionEmail3, ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/ExistsSNSSubscriptionEmail4
+  ##---------------------------------------------------------------------------------------
+  ExistsSNSSubscriptionEmail4:
+    !Not [!Equals [!Ref SNSSubscriptionEmail4, ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/ExistsStackReferenceAdministrative1
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceAdministrative1:
+    !Not [!Equals [!Ref "StackReferenceAdministrative1", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/ExistsStackReferenceAdministrative2
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceAdministrative2:
+    !Not [!Equals [!Ref "StackReferenceAdministrative2", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/ExistsStackReferenceCodeDeploy
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceCodeDeploy:
+    !Not [!Equals [!Ref "StackReferenceCodeDeploy", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/ExistsStackReferenceEFS
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceEFS:
+    !Not [!Equals [!Ref "StackReferenceEFS", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/ExistsStackReferenceSecurity1
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceSecurity1:
+    !Not [!Equals [!Ref "StackReferenceSecurity1", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object: StackReference/ExistsStackReferenceSecurity2
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceSecurity2:
+    !Not [!Equals [!Ref "StackReferenceSecurity2", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget10
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget10:
+    !Not [!Equals [!Ref "StackReferenceTarget10", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget1
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget1:
+    !Not [!Equals [!Ref "StackReferenceTarget1", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget2
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget2:
+    !Not [!Equals [!Ref "StackReferenceTarget2", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget3
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget3:
+    !Not [!Equals [!Ref "StackReferenceTarget3", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget4
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget4:
+    !Not [!Equals [!Ref "StackReferenceTarget4", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget5
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget5:
+    !Not [!Equals [!Ref "StackReferenceTarget5", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget6
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget6:
+    !Not [!Equals [!Ref "StackReferenceTarget6", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget7
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget7:
+    !Not [!Equals [!Ref "StackReferenceTarget7", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget8
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget8:
+    !Not [!Equals [!Ref "StackReferenceTarget8", ""]]
+
+  ##---------------------------------------------------------------------------------------
+  # object:  StackReference/ExistsStackReferenceTarget9
+  ##---------------------------------------------------------------------------------------
+  ExistsStackReferenceTarget9:
+    !Not [!Equals [!Ref "StackReferenceTarget9", ""]]
+
+##-------------------------------------------------------------------------------------------------
+Resources:
+  ##---------------------------------------------------------------------------------------
+  # object: AutoScaling/AutoScalingGroup/Instance_Standalone
+  ##---------------------------------------------------------------------------------------
+  AutoScalingGroupInstance:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      AutoScalingGroupName: !Join [ "_", [ !Select [1, !Split ["|", !Ref "Project"]], !Select [1, !Split ["|", !Ref "Function"]], !Select [3, !Split ["|", !Ref "Organization"]], !Select [1, !Split ["|", !Ref "Organization"]], !Ref "AWS::Region" ] ]
+      AvailabilityZones:
+        - !If [SubnetTypePublic, !GetAtt "StackReferenceResultsVPC.SubnetPublic1AvailabilityZone", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePublic, !GetAtt "StackReferenceResultsVPC.SubnetPublic2AvailabilityZone", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePublic, !GetAtt "StackReferenceResultsVPC.SubnetPublic3AvailabilityZone", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePrivate, !GetAtt "StackReferenceResultsVPC.SubnetPrivate1AvailabilityZone", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePrivate, !GetAtt "StackReferenceResultsVPC.SubnetPrivate2AvailabilityZone", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePrivate, !GetAtt "StackReferenceResultsVPC.SubnetPrivate3AvailabilityZone", !Ref "AWS::NoValue"]
+        - !If [SubnetTypeRestricted, !GetAtt "StackReferenceResultsVPC.SubnetRestricted1AvailabilityZone", !Ref "AWS::NoValue"]
+        - !If [SubnetTypeRestricted, !GetAtt "StackReferenceResultsVPC.SubnetRestricted2AvailabilityZone", !Ref "AWS::NoValue"]
+        - !If [SubnetTypeRestricted, !GetAtt "StackReferenceResultsVPC.SubnetRestricted3AvailabilityZone", !Ref "AWS::NoValue"]
+      VPCZoneIdentifier:
+        - !If [SubnetTypePublic, !GetAtt "StackReferenceResultsVPC.SubnetPublic1Id", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePublic, !GetAtt "StackReferenceResultsVPC.SubnetPublic2Id", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePublic, !GetAtt "StackReferenceResultsVPC.SubnetPublic3Id", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePrivate, !GetAtt "StackReferenceResultsVPC.SubnetPrivate1Id", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePrivate, !GetAtt "StackReferenceResultsVPC.SubnetPrivate2Id", !Ref "AWS::NoValue"]
+        - !If [SubnetTypePrivate, !GetAtt "StackReferenceResultsVPC.SubnetPrivate3Id", !Ref "AWS::NoValue"]
+        - !If [SubnetTypeRestricted, !GetAtt "StackReferenceResultsVPC.SubnetRestricted1Id", !Ref "AWS::NoValue"]
+        - !If [SubnetTypeRestricted, !GetAtt "StackReferenceResultsVPC.SubnetRestricted2Id", !Ref "AWS::NoValue"]
+        - !If [SubnetTypeRestricted, !GetAtt "StackReferenceResultsVPC.SubnetRestricted3Id", !Ref "AWS::NoValue"]
+      MixedInstancesPolicy:
+        InstancesDistribution:
+          OnDemandAllocationStrategy: "prioritized"
+          OnDemandBaseCapacity: "0"
+          OnDemandPercentageAboveBaseCapacity: !Select [1, !Split ["|", !Ref "AutoScalingDetails"]]
+          SpotAllocationStrategy: "lowest-price"
+        LaunchTemplate:
+          LaunchTemplateSpecification:
+            LaunchTemplateId: !Ref "LaunchTemplateInstance"
+            Version: !GetAtt "LaunchTemplateInstance.LatestVersionNumber"
+          Overrides:
+            - InstanceType: !Select [0, !Split ["|", !Ref "InstanceType"]]
+            - InstanceType: !Select [1, !Split ["|", !Ref "InstanceType"]]
+      MinSize: 0
+      MaxSize: !Select [0, !Split ["|", !Ref "AutoScalingDetails"]]
+      Cooldown: !Select [2, !Split ["|", !Ref "AutoScalingDetails"]]
+      HealthCheckGracePeriod: !Select [3, !Split ["|", !Ref "AutoScalingDetails"]]
+      HealthCheckType: "EC2"
+      MetricsCollection:
+        - Granularity: "1Minute"
+      NotificationConfiguration:
+        NotificationTypes:
+          - "autoscaling:EC2_INSTANCE_LAUNCH"
+          - "autoscaling:EC2_INSTANCE_LAUNCH_ERROR"
+          - "autoscaling:EC2_INSTANCE_TERMINATE"
+          - "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
+        TopicARN: !Ref "SNSTopicAutoScalingGroupInstance"
+      TerminationPolicies:
+        - "OldestInstance"
+        - "Default"
+      Tags:
+        - Key: "Name"
+          Value: !Join [ "", [ !Select [0, !Split ["|", !Ref "Project"]], " - ", !Select [0, !Split ["|", !Ref "Function"]], " (", !Select [3, !Split ["|", !Ref "Organization"]], ") - [", !Select [0, !Split ["|", !Ref "Organization"]], "]" ] ]
+          PropagateAtLaunch: "true"
+        - Key: "Organization"
+          Value: !Select [0, !Split ["|", !Ref "Organization"]]
+          PropagateAtLaunch: "true"
+        - Key: "Project"
+          Value: !Select [0, !Split ["|", !Ref "Project"]]
+          PropagateAtLaunch: "true"
+        - Key: "Function"
+          Value: !Select [0, !Split ["|", !Ref "Function"]]
+          PropagateAtLaunch: "true"
+        - Key: "Owner"
+          Value: !Select [0, !Split ["|", !Ref "Owner"]]
+          PropagateAtLaunch: "true"
+        - Key: "Contact"
+          Value: !Select [1, !Split ["|", !Ref "Owner"]]
+          PropagateAtLaunch: "true"
+    CreationPolicy:
+      AutoScalingCreationPolicy:
+        MinSuccessfulInstancesPercent: 0
+      ResourceSignal:
+        Count: 0
+        Timeout: !Select [4, !Split ["|", !Ref "AutoScalingDetails"]]
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: "1"
+        MaxBatchSize: "1"
+        WaitOnResourceSignals: "true"
+        PauseTime: !Select [4, !Split ["|", !Ref "AutoScalingDetails"]]
+    DependsOn:
+      - "StackReferenceResultsVPC"
+      - "SNSTopicAutoScalingGroupInstance"
+
+  ##---------------------------------------------------------------------------------------
+  # object: CodeDeploy/DeploymentGroup/Instance_Standalone
+  ##---------------------------------------------------------------------------------------
+  DeploymentGroupInstance:
+    Condition: "ExistsStackReferenceCodeDeploy"
+    Type: "AWS::CodeDeploy::DeploymentGroup"
+    Properties:
+      ApplicationName: !GetAtt "StackReferenceResultsCodeDeploy.CodeDeployApplicationName"
+      DeploymentGroupName: !Ref "AWS::StackName"
+      AutoRollbackConfiguration:
+        Enabled: "true"
+        Events:
+          - DEPLOYMENT_FAILURE
+          - DEPLOYMENT_STOP_ON_ALARM
+          - DEPLOYMENT_STOP_ON_REQUEST
+      AutoScalingGroups:
+        - !Ref "AutoScalingGroupInstance"
+      DeploymentStyle:
+        DeploymentOption: WITHOUT_TRAFFIC_CONTROL
+      DeploymentConfigName: "CodeDeployDefault.AllAtOnce"
+      ServiceRoleArn: !GetAtt "StackReferenceResultsCodeDeploy.CodeDeployRoleArn"
+    DependsOn:
+      - "StackReferenceResultsCodeDeploy"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Custom/AMICustom
+  ##---------------------------------------------------------------------------------------
+  AMI:
+    Type: "Custom::AMI"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:ami-lookup-custom" ] ]
+      "Region": !Ref "AWS::Region"
+      "AMINamePrepend": !Select [0, !Split ["|", !Ref "AMICustom"]]
+      "AMINameAppend": !Select [1, !Split ["|", !Ref "AMICustom"]]
+      "Updated": !Ref "LaunchTemplateUpdated"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Custom/StackReferenceResultsAdministrative1
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsAdministrative1:
+    Condition: "ExistsStackReferenceAdministrative1"
+    Type: "Custom::StackReferenceResultsAdministrative1"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceAdministrative1"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Custom/StackReferenceResultsAdministrative2
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsAdministrative2:
+    Condition: "ExistsStackReferenceAdministrative2"
+    Type: "Custom::StackReferenceResultsAdministrative2"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceAdministrative2"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Custom/StackReferenceResultsCodeDeploy
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsCodeDeploy:
+    Condition: "ExistsStackReferenceCodeDeploy"
+    Type: "Custom::StackReferenceResultsCodeDeploy"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceCodeDeploy"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Custom/StackReferenceResultsEFS
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsEFS:
+    Condition: "ExistsStackReferenceEFS"
+    Type: "Custom::StackReferenceResultsEFS"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceEFS"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Custom/StackReferenceResultsSecurity1
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsSecurity1:
+    Condition: "ExistsStackReferenceSecurity1"
+    Type: "Custom::StackReferenceResultsSecurity1"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceSecurity1"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Custom/StackReferenceResultsSecurity2
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsSecurity2:
+    Condition: "ExistsStackReferenceSecurity2"
+    Type: "Custom::StackReferenceResultsSecurity2"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceSecurity2"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget10
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget10:
+    Condition: "ExistsStackReferenceTarget10"
+    Type: "Custom::StackReferenceResultsTarget10"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget10"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget1
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget1:
+    Condition: "ExistsStackReferenceTarget1"
+    Type: "Custom::StackReferenceResultsTarget1"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget1"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget2
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget2:
+    Condition: "ExistsStackReferenceTarget2"
+    Type: "Custom::StackReferenceResultsTarget2"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget2"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget3
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget3:
+    Condition: "ExistsStackReferenceTarget3"
+    Type: "Custom::StackReferenceResultsTarget3"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget3"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget4
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget4:
+    Condition: "ExistsStackReferenceTarget4"
+    Type: "Custom::StackReferenceResultsTarget4"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget4"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget5
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget5:
+    Condition: "ExistsStackReferenceTarget5"
+    Type: "Custom::StackReferenceResultsTarget5"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget5"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget6
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget6:
+    Condition: "ExistsStackReferenceTarget6"
+    Type: "Custom::StackReferenceResultsTarget6"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget6"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget7
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget7:
+    Condition: "ExistsStackReferenceTarget7"
+    Type: "Custom::StackReferenceResultsTarget7"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget7"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget8
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget8:
+    Condition: "ExistsStackReferenceTarget8"
+    Type: "Custom::StackReferenceResultsTarget8"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget8"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object:  Custom/StackReferenceResultsTarget9
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsTarget9:
+    Condition: "ExistsStackReferenceTarget9"
+    Type: "Custom::StackReferenceResultsTarget9"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceTarget9"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Custom/StackReferenceResultsVPC
+  ##---------------------------------------------------------------------------------------
+  StackReferenceResultsVPC:
+    Type: "Custom::StackReferenceResultsVPC"
+    Version: "1.0"
+    Properties:
+      "ServiceToken": !Join [ "", [ "arn:aws:lambda:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":function:stack-reference" ] ]
+      "Region": !Ref "AWS::Region"
+      "StackName": !Ref "StackReferenceVPC"
+      "LastUpdate": !Ref "LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object: EC2/EIP/Instance
+  ##---------------------------------------------------------------------------------------
+  EIPInstance:
+    Condition: "EnabledElasticIp"
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: "vpc"
+
+  ##---------------------------------------------------------------------------------------
+  # object: EC2/LaunchTemplate/Instance_AmazonLinux2_Standalone
+  ##---------------------------------------------------------------------------------------
+  LaunchTemplateInstance:
+    Type: "AWS::EC2::LaunchTemplate"
+    Properties:
+      LaunchTemplateName:  !Join [ "", [ !Select [1, !Split ["|", !Ref "Project"]], "-", !Select [1, !Split ["|", !Ref "Function"]], "-", !Select [3, !Split ["|", !Ref "Organization"]], "-", !Select [1, !Split ["|", !Ref "Organization"]], "-", !Ref "AWS::Region" ] ]
+      LaunchTemplateData:
+        ImageId: !GetAtt "AMI.Id"
+        KeyName: !If [ ExistsKeypairOverride, !Ref "KeypairOverride", !GetAtt "StackReferenceResultsVPC.KeypairDefault" ]
+        IamInstanceProfile:
+          Arn: !GetAtt "InstanceProfileInstance.Arn"
+        SecurityGroupIds:
+          - !GetAtt "SecurityGroupInstance.GroupId"
+        InstanceInitiatedShutdownBehavior: "terminate"
+        Monitoring:
+          Enabled: "true"
+        BlockDeviceMappings:
+          !If
+            - "ExistsApplicationVolumeSize"
+            -
+              - DeviceName: "/dev/xvda"
+                Ebs:
+                  VolumeSize: !If [ ExistsRootVolumeSize, !Select [0, !Split ["|", !Ref "VolumeSize"]], "10" ]
+                  VolumeType: "gp2"
+              - DeviceName: "/dev/sdb"
+                Ebs:
+                  VolumeSize: !Select [1, !Split ["|", !Ref "VolumeSize"]]
+                  VolumeType: "gp2"
+                  Encrypted: true
+            -
+              - DeviceName: "/dev/xvda"
+                Ebs:
+                  VolumeSize: !If [ ExistsRootVolumeSize, !Select [0, !Split ["|", !Ref "VolumeSize"]], "10" ]
+                  VolumeType: "gp2"
+        UserData:
+          "Fn::Base64":
+            !Sub |
+              #!/bin/bash -x
+              # Iteration: ${LaunchTemplateUpdated}
+              /usr/bin/systemctl stop update-motd.service; sync; wait; yum -y update
+              yum -y update aws-cfn-bootstrap
+              /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource LaunchTemplateInstance --region ${AWS::Region} --configset "LinuxConfig,InstallConfigure"
+              /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AutoScalingGroupInstance --region ${AWS::Region}
+        TagSpecifications:
+          - ResourceType: "instance"
+            Tags:
+              - Key: "Name"
+                Value: !Join [ "", [ !Select [0, !Split ["|", !Ref "Project"]], " - ", !Select [0, !Split ["|", !Ref "Function"]], " (", !Select [3, !Split ["|", !Ref "Organization"]], ") - [", !Select [0, !Split ["|", !Ref "Organization"]], " / ", !Ref "AWS::Region", "]" ] ]
+              - Key: "Organization"
+                Value: !Select [0, !Split ["|", !Ref "Organization"]]
+              - Key: "Project"
+                Value: !Select [0, !Split ["|", !Ref "Project"]]
+              - Key: "Function"
+                Value: !Select [0, !Split ["|", !Ref "Function"]]
+              - Key: "Environment"
+                Value: !Select [3, !Split ["|", !Ref "Organization"]]
+              - Key: "Owner"
+                Value: !Select [0, !Split ["|", !Ref "Owner"]]
+              - Key: "Contact"
+                Value: !Select [1, !Split ["|", !Ref "Owner"]]
+              - Key: "AssessmentTarget"
+                Value: !Join [ "", [ !Select [0, !Split ["|", !Ref "Project"]], " - ", !Select [0, !Split ["|", !Ref "Function"]] ] ]
+              - Key: "StackID"
+                Value: !Ref "AWS::StackId"
+              - Key: "StackName"
+                Value: !Ref "AWS::StackName"
+              - Key: "OperatingSystem"
+                Value: "linux"
+          - ResourceType: "volume"
+            Tags:
+              - Key: "Name"
+                Value: !Join [ "", [ !Select [0, !Split ["|", !Ref "Project"]], " - ", !Select [0, !Split ["|", !Ref "Function"]], " (", !Select [3, !Split ["|", !Ref "Organization"]], ") - [", !Select [0, !Split ["|", !Ref "Organization"]], " / ", !Ref "AWS::Region", "]" ] ]
+              - Key: "Organization"
+                Value: !Select [0, !Split ["|", !Ref "Organization"]]
+              - Key: "Project"
+                Value: !Select [0, !Split ["|", !Ref "Project"]]
+              - Key: "Function"
+                Value: !Select [0, !Split ["|", !Ref "Function"]]
+              - Key: "Environment"
+                Value: !Select [3, !Split ["|", !Ref "Organization"]]
+              - Key: "Owner"
+                Value: !Select [0, !Split ["|", !Ref "Owner"]]
+              - Key: "Contact"
+                Value: !Select [1, !Split ["|", !Ref "Owner"]]
+              - Key: "StackID"
+                Value: !Ref "AWS::StackId"
+              - Key: "StackName"
+                Value: !Ref "AWS::StackName"
+    Metadata:
+      Comment: "Instance"
+      AWS::CloudFormation::Init:
+        configSets:
+          LinuxConfig:
+            - "ConfigureAWSTools"
+            - "ConfigureInstance"
+          InstallConfigure:
+            - "AttachEIP"
+            - "BootstrapCodeDeploy"
+            - "Cleanup"
+        ConfigureAWSTools:
+          files:
+            "/etc/cfn/cfn-hup.conf":
+              content: !Sub |
+                [main]
+                stack=${AWS::StackId}
+                region=${AWS::Region}
+              mode:  "000400"
+              owner: "root"
+              group: "root"
+            "/etc/cfn/hooks.d/cfn-auto-reloader.conf":
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.LaunchTemplateInstance.Metadata.AWS::CloudFormation::Init
+                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource LaunchTemplateInstance --region ${AWS::Region}
+                runas=root
+          services:
+            sysvinit:
+              cfn-hup:
+                enabled: 'true'
+                ensureRunning: 'true'
+                files:
+                  - "/etc/cfn/cfn-hup.conf"
+                  - "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+        ConfigureInstance:
+          files:
+            "/deploy/instance.dat":
+              content: !Join [ "", [
+                "## START Instance Data", "\n",
+                "INSTANCE_ORGANIZATION_NAME=\"", !Select [0, !Split ["|", !Ref "Organization"]], "\"", "\n",
+                "INSTANCE_ORGANIZATION_ABBR=\"", !Select [1, !Split ["|", !Ref "Organization"]], "\"", "\n",
+                "INSTANCE_PROJECT_NAME=\"", !Select [0, !Split ["|", !Ref "Project"]], "\"", "\n",
+                "INSTANCE_PROJECT_ABBR=\"", !Select [1, !Split ["|", !Ref "Project"]], "\"", "\n",
+                "INSTANCE_FUNCTION_NAME=\"", !Select [0, !Split ["|", !Ref "Function"]], "\"", "\n",
+                "INSTANCE_FUNCTION_ABBR=\"", !Select [1, !Split ["|", !Ref "Function"]], "\"", "\n",
+                "INSTANCE_ENVIRONMENT=\"", !Select [3, !Split ["|", !Ref "Organization"]], "\"", "\n",
+                "## END Instance Data", "\n",
+              ] ]
+              mode:  "000444"
+              owner: "root"
+              group: "root"
+            "/deploy/aws.info":
+              content: !Join [ "", [
+                "## START AWS Info", "\n",
+                "stack_id=", !Ref "AWS::StackId", "\n",
+                "stack_name=", !Ref "AWS::StackName", "\n",
+                "aws_account_id=", !Ref "AWS::AccountId", "\n",
+                "org_name=", !Select [0, !Split ["|", !Ref "Organization"]], "\n",
+                "org_abbr=", !Select [1, !Split ["|", !Ref "Organization"]], "\n",
+                "region=", !Ref "AWS::Region", "\n",
+                "environment=", !Select [3, !Split ["|", !Ref "Organization"]], "\n",
+                "project_name=", !Select [0, !Split ["|", !Ref "Project"]], "\n",
+                "project_abbr=", !Select [1, !Split ["|", !Ref "Project"]], "\n",
+                "function_name=", !Select [0, !Split ["|", !Ref "Function"]], "\n",
+                "function_abbr=", !Select [1, !Split ["|", !Ref "Function"]], "\n",
+                "owner=", !Select [0, !Split ["|", !Ref "Owner"]], "\n",
+                "contact=", !Select [1, !Split ["|", !Ref "Owner"]], "\n",
+                "vpc_stack_name=", !Join [ "", [ "infrastructure-vpc-", !Select [1, !Split ["|", !Ref "Organization"]], "-", !Select [2, !Split ["|", !Ref "Organization"]] ] ], "\n",
+                "## END AWS Info", "\n",
+              ] ]
+              mode:  "000444"
+              owner: "root"
+              group: "root"
+          commands:
+            01-configure_disk:
+              command: !Sub |
+                /opt/aws_deploy/scripts/bootstrap/disk.sh
+            02-configure_swap:
+              !If
+                - "ExistsSwapSize"
+                - command: !Sub |
+                    /opt/aws_deploy/scripts/bootstrap/swap.sh -s ${SwapSize}
+                - !Ref "AWS::NoValue"
+            03-configure_users:
+              !If
+                - "ExistsInstanceUsers"
+                - command: !Sub |
+                    /opt/aws_deploy/scripts/bootstrap/users.sh -U "${InstanceUsers}"
+                - !Ref "AWS::NoValue"
+            04-configure_nfs:
+              !If
+                - "ExistsStackReferenceEFS"
+                - command: !Sub |
+                    yum -y install nfs-utils amazon-efs-utils; mkdir /apps_nfs >/dev/null 2>&1; mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${StackReferenceResultsEFS.EFSFileSystemApplicationId}.efs.${AWS::Region}.amazonaws.com:/ /apps_nfs
+                - !Ref "AWS::NoValue"
+        BootstrapCodeDeploy:
+          commands:
+            01-enable_codedeploy_agent:
+             !If
+                - "ExistsStackReferenceCodeDeploy"
+                - command: "systemctl enable codedeploy-agent.service"
+                - !Ref "AWS::NoValue"
+            02-start_codedeploy_agent:
+             !If
+                - "ExistsStackReferenceCodeDeploy"
+                - command: "systemctl start codedeploy-agent.service"
+                - !Ref "AWS::NoValue"
+        AttachEIP:
+          commands:
+            01-eip-setup:
+              !If
+                - "EnabledElasticIp"
+                - command: !Sub |
+                    /opt/aws_deploy/scripts/bootstrap/eip.sh -e "${EIPInstance.AllocationId}"
+                - !Ref "AWS::NoValue"
+        Cleanup:
+          commands:
+            01-fix_log_permissions:
+              command: !Sub |
+                find /var/log -type f -exec chmod g-wx,o-rwx {} +
+    DependsOn:
+      - "StackReferenceResultsVPC"
+      - "AMI"
+
+  ##---------------------------------------------------------------------------------------
+  # object: EC2/SecurityGroupEgress/InstanceEFS
+  ##---------------------------------------------------------------------------------------
+  SecurityGroupEgressInstanceEFS:
+    Condition: "ExistsStackReferenceEFS"
+    Type: "AWS::EC2::SecurityGroupEgress"
+    Properties:
+      GroupId:               !GetAtt "StackReferenceResultsEFS.SecurityGroupApplicationEFSId"
+      IpProtocol:            "tcp"
+      FromPort:              "2049"
+      ToPort:                "2049"
+      SourceSecurityGroupId: !Ref "SecurityGroupInstance"
+      Description: !Join [ "", [ !Select [0, !Split ["|", !Ref "Project"]], " - ", !Select [0, !Split ["|", !Ref "Function"]], " (", !Select [3, !Split ["|", !Ref "Organization"]], ") - [", !Select [0, !Split ["|", !Ref "Organization"]], "]" ] ]
+
+  ##---------------------------------------------------------------------------------------
+  # object: EC2/SecurityGroupEgress/NAT
+  ##---------------------------------------------------------------------------------------
+  SecurityGroupEgressNAT:
+    Type: "AWS::EC2::SecurityGroupEgress"
+    Properties:
+      GroupId:     !Ref "SecurityGroupInstance"
+      IpProtocol:  "-1"
+      FromPort:    "0"
+      ToPort:      "65535"
+      CidrIp:      "0.0.0.0/0"
+      Description: "Default egress rule to allow all ports out"
+
+  ##---------------------------------------------------------------------------------------
+  # object: EC2/SecurityGroupIngress/InstanceEFS
+  ##---------------------------------------------------------------------------------------
+  SecurityGroupIngressInstanceEFS:
+    Condition: "ExistsStackReferenceEFS"
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId:               !GetAtt "StackReferenceResultsEFS.SecurityGroupApplicationEFSId"
+      IpProtocol:            "tcp"
+      FromPort:              "2049"
+      ToPort:                "2049"
+      SourceSecurityGroupId: !Ref "SecurityGroupInstance"
+      Description: !Join [ "", [ !Select [0, !Split ["|", !Ref "Project"]], " - ", !Select [0, !Split ["|", !Ref "Function"]], " (", !Select [3, !Split ["|", !Ref "Organization"]], ") - [", !Select [0, !Split ["|", !Ref "Organization"]], "]" ] ]
+
+  ##---------------------------------------------------------------------------------------
+  # object: EC2/SecurityGroupIngress/NAT
+  ##---------------------------------------------------------------------------------------
+  SecurityGroupIngressNATSubnetPrivate1:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId:     !Ref "SecurityGroupInstance"
+      IpProtocol:  "-1"
+      FromPort:    "0"
+      ToPort:      "65535"
+      CidrIp:      !GetAtt "StackReferenceResultsVPC.SubnetPrivate1Cidr"
+      Description: !Join [ "", [ "NAT Traversal: Private Subnet 1 (", !GetAtt "StackReferenceResultsVPC.SubnetPrivate1Cidr", ")" ] ]
+  SecurityGroupIngressNATSubnetPrivate2:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId:     !Ref "SecurityGroupInstance"
+      IpProtocol:  "-1"
+      FromPort:    "0"
+      ToPort:      "65535"
+      CidrIp:      !GetAtt "StackReferenceResultsVPC.SubnetPrivate2Cidr"
+      Description: !Join [ "", [ "NAT Traversal: Private Subnet 2 (", !GetAtt "StackReferenceResultsVPC.SubnetPrivate2Cidr", ")" ] ]
+  SecurityGroupIngressNATSubnetPrivate3:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId:     !Ref "SecurityGroupInstance"
+      IpProtocol:  "-1"
+      FromPort:    "0"
+      ToPort:      "65535"
+      CidrIp:      !GetAtt "StackReferenceResultsVPC.SubnetPrivate3Cidr"
+      Description: !Join [ "", [ "NAT Traversal: Private Subnet 3 (", !GetAtt "StackReferenceResultsVPC.SubnetPrivate3Cidr", ")" ] ]
+
+  ##---------------------------------------------------------------------------------------
+  # object: EC2/SecurityGroup/Instance
+  ##---------------------------------------------------------------------------------------
+  SecurityGroupInstance:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: !Join [ "_", [ "ec2", !Select [1, !Split ["|", !Ref "Project"]], !Select [1, !Split ["|", !Ref "Function"]], !Select [3, !Split ["|", !Ref "Organization"]], !Select [1, !Split ["|", !Ref "Organization"]], !Ref "AWS::Region" ] ]
+      GroupDescription: !Join [ "", [ !Select [0, !Split ["|", !Ref "Project"]], " - ", !Select [0, !Split ["|", !Ref "Function"]], " - EC2 (", !Select [3, !Split ["|", !Ref "Organization"]], ") [", !Select [0, !Split ["|", !Ref "Organization"]], " / ", !Ref "AWS::Region", "]" ] ]
+      VpcId: !GetAtt "StackReferenceResultsVPC.VPCId"
+      SecurityGroupIngress:
+      - !If
+          - ExistsStackReferenceAdministrative1
+          - IpProtocol:            "-1"
+            FromPort:              "0"
+            ToPort:                "65535"
+            SourceSecurityGroupId: !GetAtt "StackReferenceResultsAdministrative1.SecurityGroupInstanceId"
+            Description:           !Join [ "", [ "Administrative: ", !GetAtt "StackReferenceResultsAdministrative1.InstanceDescription" ] ]
+          - !Ref "AWS::NoValue"
+      - !If
+          - ExistsStackReferenceAdministrative2
+          - IpProtocol:            "-1"
+            FromPort:              "0"
+            ToPort:                "65535"
+            SourceSecurityGroupId: !GetAtt "StackReferenceResultsAdministrative2.SecurityGroupInstanceId"
+            Description:           !Join [ "", [ "Administrative: ", !GetAtt "StackReferenceResultsAdministrative2.InstanceDescription" ] ]
+          - !Ref "AWS::NoValue"
+      - !If
+          - ExistsStackReferenceSecurity1
+          - IpProtocol:            "-1"
+            FromPort:              "0"
+            ToPort:                "65535"
+            SourceSecurityGroupId: !GetAtt "StackReferenceResultsSecurity1.SecurityGroupInstanceId"
+            Description:           !Join [ "", [ "Security: ", !GetAtt "StackReferenceResultsSecurity1.InstanceDescription" ] ]
+          - !Ref "AWS::NoValue"
+      - !If
+          - ExistsStackReferenceSecurity2
+          - IpProtocol:            "-1"
+            FromPort:              "0"
+            ToPort:                "65535"
+            SourceSecurityGroupId: !GetAtt "StackReferenceResultsSecurity2.SecurityGroupInstanceId"
+            Description:           !Join [ "", [ "Security: ", !GetAtt "StackReferenceResultsSecurity2.InstanceDescription" ] ]
+          - !Ref "AWS::NoValue"
+      SecurityGroupEgress:
+      - IpProtocol:            "-1"
+        FromPort:              "0"
+        ToPort:                "65535"
+        CidrIp:                !GetAtt "StackReferenceResultsVPC.VPCCidr"
+        Description:           !Join [ "", [ "VPC: ", !GetAtt "StackReferenceResultsVPC.VPCName" ] ]
+      - IpProtocol:            "tcp"
+        FromPort:              "80"
+        ToPort:                "80"
+        CidrIp:                "0.0.0.0/0"
+        Description:           "HTTP Outbound"
+      - IpProtocol:            "tcp"
+        FromPort:              "443"
+        ToPort:                "443"
+        CidrIp:                "0.0.0.0/0"
+        Description:           "HTTPS Outbound"
+      - !If
+          - ExistsStackReferenceEFS
+          - IpProtocol:            "tcp"
+            FromPort:              "2049"
+            ToPort:                "2049"
+            SourceSecurityGroupId: !GetAtt "StackReferenceResultsEFS.SecurityGroupApplicationEFSId"
+            Description:           !Join [ "", [ "EFS: ", !GetAtt "StackReferenceResultsEFS.EFSDescription" ] ]
+          - !Ref "AWS::NoValue"
+      - !If
+          - ExistsStackReferenceAdministrative1
+          - IpProtocol:            "-1"
+            FromPort:              "0"
+            ToPort:                "65535"
+            SourceSecurityGroupId: !GetAtt "StackReferenceResultsAdministrative1.SecurityGroupInstanceId"
+            Description:           !Join [ "", [ "Administrative: ", !GetAtt "StackReferenceResultsAdministrative1.InstanceDescription" ] ]
+          - !Ref "AWS::NoValue"
+      - !If
+          - ExistsStackReferenceAdministrative2
+          - IpProtocol:            "-1"
+            FromPort:              "0"
+            ToPort:                "65535"
+            SourceSecurityGroupId: !GetAtt "StackReferenceResultsAdministrative2.SecurityGroupInstanceId"
+            Description:           !Join [ "", [ "Administrative: ", !GetAtt "StackReferenceResultsAdministrative2.InstanceDescription" ] ]
+          - !Ref "AWS::NoValue"
+      - !If
+          - ExistsStackReferenceSecurity1
+          - IpProtocol:            "-1"
+            FromPort:              "0"
+            ToPort:                "65535"
+            SourceSecurityGroupId: !GetAtt "StackReferenceResultsSecurity1.SecurityGroupInstanceId"
+            Description:           !Join [ "", [ "Security: ", !GetAtt "StackReferenceResultsSecurity1.InstanceDescription" ] ]
+          - !Ref "AWS::NoValue"
+      - !If
+          - ExistsStackReferenceSecurity2
+          - IpProtocol:            "-1"
+            FromPort:              "0"
+            ToPort:                "65535"
+            SourceSecurityGroupId: !GetAtt "StackReferenceResultsSecurity2.SecurityGroupInstanceId"
+            Description:           !Join [ "", [ "Security: ", !GetAtt "StackReferenceResultsSecurity2.InstanceDescription" ] ]
+          - !Ref "AWS::NoValue"
+      Tags:
+        - Key: "Name"
+          Value: !Join [ "_", [ "ec2", !Select [1, !Split ["|", !Ref "Project"]], !Select [1, !Split ["|", !Ref "Function"]], !Select [3, !Split ["|", !Ref "Organization"]], !Select [1, !Split ["|", !Ref "Organization"]], !Ref "AWS::Region" ] ]
+    DependsOn:
+      - "StackReferenceResultsVPC"
+
+  ##---------------------------------------------------------------------------------------
+  # object: IAM/InstanceProfile/Instance
+  ##---------------------------------------------------------------------------------------
+  InstanceProfileInstance:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: !Join [ "", [ !Select [1, !Split ["|", !Ref "Project"]], "-", !Select [1, !Split ["|", !Ref "Function"]], "-", !Select [3, !Split ["|", !Ref "Organization"]], "-", !Select [1, !Split ["|", !Ref "Organization"]] ] ]
+      Path: !Join [ "", [ "/", !Ref "AWS::Region", "/" ] ]
+      Roles:
+        - !Ref "RoleInstance"
+
+  ##---------------------------------------------------------------------------------------
+  # object: IAM/Policy/EIP
+  ##---------------------------------------------------------------------------------------
+  PolicyEIP:
+    Condition: "EnabledElasticIp"
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: !Join [ "", [ "ec2-eip", "_", !Select [1, !Split ["|", !Ref "Project"]], "-", !Select [1, !Split ["|", !Ref "Function"]], "-", !Select [3, !Split ["|", !Ref "Organization"]], "-", !Select [1, !Split ["|", !Ref "Organization"]], "_", !Ref "AWS::Region" ] ]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "*"
+            Action:
+              - "ec2:DescribeInstances"
+              - "ec2:DescribeTags"
+              - "ec2:DescribeAddresses"
+              - "ec2:AssociateAddress"
+              - "ec2:DisassociateAddress"
+            Resource:
+              - "*"
+      Roles:
+        - !Ref "RoleInstance"
+    DependsOn:
+      - "RoleInstance"
+
+  ##---------------------------------------------------------------------------------------
+  # object: IAM/Policy/NAT
+  ##---------------------------------------------------------------------------------------
+  PolicyNAT:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: !Join [ "", [ "ec2-nat", "_", !Select [1, !Split ["|", !Ref "Project"]], "-", !Select [1, !Split ["|", !Ref "Function"]], "-", !Select [3, !Split ["|", !Ref "Organization"]], "-", !Select [1, !Split ["|", !Ref "Organization"]], "_", !Ref "AWS::Region" ] ]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "*"
+            Action:
+              - "ec2:DescribeRouteTables"
+              - "ec2:DescribeInstances"
+              - "ec2:DeleteRoute"
+              - "ec2:CreateRoute"
+              - "ec2:ReplaceRoute"
+              - "ec2:ModifyInstanceAttribute"
+              - "ec2:DescribeTags"
+              - "ec2:DescribeAddresses"
+              - "ec2:AssociateAddress"
+              - "ec2:DisassociateAddress"
+            Resource:
+              - "*"
+      Roles:
+        - !Ref "RoleInstance"
+    DependsOn:
+      - "RoleInstance"
+
+  ##---------------------------------------------------------------------------------------
+  # object: IAM/Role/Instance
+  ##---------------------------------------------------------------------------------------
+  RoleInstance:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Join [ "", [ "ec2", "_", !Select [1, !Split ["|", !Ref "Project"]], "-", !Select [1, !Split ["|", !Ref "Function"]], "-", !Select [3, !Split ["|", !Ref "Organization"]], "-", !Select [1, !Split ["|", !Ref "Organization"]], "_", !Ref "AWS::Region" ] ]
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: !Join [ "", [ "/", !Ref "AWS::Region", "/" ] ]
+      Policies:
+        -
+          PolicyName: !Join [ "", [ "ec2", "_", !Select [1, !Split ["|", !Ref "Project"]], "-", !Select [1, !Split ["|", !Ref "Function"]], "-", !Select [3, !Split ["|", !Ref "Organization"]], "-", !Select [1, !Split ["|", !Ref "Organization"]], "_", !Ref "AWS::Region" ] ]
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              ##-------------------------------------------------------------------------------------------------------------------------------
+              ## CloudFormation
+              - Effect: "Allow"
+                Action:
+                  - "cloudformation:DescribeStacks"
+                Resource: "*"
+              ##-------------------------------------------------------------------------------------------------------------------------------
+              ## SSM
+              - Effect: "Allow"
+                Action:
+                  - "ssm:DescribeAssociation"
+                  - "ssm:GetDeployablePatchSnapshotForInstance"
+                  - "ssm:GetDocument"
+                  - "ssm:DescribeDocument"
+                  - "ssm:GetManifest"
+                  - "ssm:GetParameters"
+                  - "ssm:ListAssociations"
+                  - "ssm:ListInstanceAssociations"
+                  - "ssm:PutInventory"
+                  - "ssm:PutComplianceItems"
+                  - "ssm:PutConfigurePackageResult"
+                  - "ssm:UpdateAssociationStatus"
+                  - "ssm:UpdateInstanceAssociationStatus"
+                  - "ssm:UpdateInstanceInformation"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "ssmmessages:CreateControlChannel"
+                  - "ssmmessages:CreateDataChannel"
+                  - "ssmmessages:OpenControlChannel"
+                  - "ssmmessages:OpenDataChannel"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetEncryptionConfiguration"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                Resource:
+                  - !Join [ "", [ "arn:aws:s3:::", "aws-ssm-", !Ref "AWS::Region", "/*" ] ]
+                  - !Join [ "", [ "arn:aws:s3:::", "amazon-ssm-", !Ref "AWS::Region", "/*" ] ]
+                  - !Join [ "", [ "arn:aws:s3:::", "amazon-ssm-packages-", !Ref "AWS::Region", "/*" ] ]
+                  - !Join [ "", [ "arn:aws:s3:::", !Ref "AWS::Region", "-birdwatcher-prod", "/*" ] ]
+                  - !Join [ "", [ "arn:aws:s3:::", "patch-baseline-snapshot-", !Ref "AWS::Region", "/*" ] ]
+              ##-------------------------------------------------------------------------------------------------------------------------------
+              ## Logging
+              - Effect: "Allow"
+                Action:
+                  - "ec2messages:AcknowledgeMessage"
+                  - "ec2messages:DeleteMessage"
+                  - "ec2messages:FailMessage"
+                  - "ec2messages:GetEndpoint"
+                  - "ec2messages:GetMessages"
+                  - "ec2messages:SendReply"
+                  - "cloudwatch:PutMetricData"
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:DescribeLogGroups"
+                  - "logs:DescribeLogStreams"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+              ##-------------------------------------------------------------------------------------------------------------------------------
+              ## Security
+              - Effect: "Allow"
+                Action:
+                  - "iam:ListUsers"
+                  - "iam:GetGroup"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "ssm:GetParametersByPath"
+                  - "ssm:GetParameter"
+                  - "ssm:GetParameters"
+                Resource:
+                  - !Join [ "", [ "arn:aws:ssm:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":parameter/secrets/", !Select [1, !Split ["|", !Ref "Project"]], "/", !Select [1, !Split ["|", !Ref "Function"]], "/", !Select [3, !Split ["|", !Ref "Organization"]], "/*" ] ]
+                  - !Join [ "", [ "arn:aws:ssm:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":parameter/secrets/", !Select [1, !Split ["|", !Ref "Project"]], "/", "global", "/", !Select [3, !Split ["|", !Ref "Organization"]], "/*" ] ]
+              - Effect: "Allow"
+                Action:
+                  - "kms:Decrypt"
+                Resource:
+                  - !GetAtt "StackReferenceResultsVPC.KMSKeyData"
+                  - !GetAtt "StackReferenceResultsVPC.KMSKeyAliasData"
+              ##-------------------------------------------------------------------------------------------------------------------------------
+              ## CodeDeploy
+              - !If
+                  - ExistsStackReferenceCodeDeploy
+                  - Effect: "Allow"
+                    Action:
+                      - "s3:Get*"
+                      - "s3:List*"
+                    Resource:
+                      - "arn:aws:s3:::aws-codedeploy-us-east-1/*"
+                      - "arn:aws:s3:::aws-codedeploy-us-west-2/*"
+                  - !Ref "AWS::NoValue"
+              - !If
+                  - ExistsStackReferenceCodeDeploy
+                  - Effect: "Allow"
+                    Action:
+                      - "s3:Get*"
+                      - "s3:List*"
+                    Resource:
+                      - !Join [ "", [ "arn:aws:s3:::", !GetAtt "StackReferenceResultsCodeDeploy.S3BucketArtifacts" ] ]
+                      - !Join [ "", [ "arn:aws:s3:::", !GetAtt "StackReferenceResultsCodeDeploy.S3BucketArtifacts", "/*" ] ]
+                  - !Ref "AWS::NoValue"
+              - !If
+                  - ExistsStackReferenceCodeDeploy
+                  - Effect: "Allow"
+                    Action:
+                      - "s3:GetObject*"
+                      - "s3:ListBucket*"
+                    Resource:
+                      - !Join [ "", [ "arn:aws:s3:::", !GetAtt "StackReferenceResultsCodeDeploy.S3BucketArtifacts", "/codedeploy/", !GetAtt "StackReferenceResultsCodeDeploy.CodeDeployApplicationName" ] ]
+                      - !Join [ "", [ "arn:aws:s3:::", !GetAtt "StackReferenceResultsCodeDeploy.S3BucketArtifacts", "/codedeploy/", !GetAtt "StackReferenceResultsCodeDeploy.CodeDeployApplicationName", "/*" ] ]
+                  - !Ref "AWS::NoValue"
+    DependsOn:
+      - "StackReferenceResultsVPC"
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/Subscription/AutoScalingGroupInstanceEmail1
+  ##---------------------------------------------------------------------------------------
+  SNSSubscriptionAutoScalingGroupInstanceEmail1:
+    Condition: "ExistsSNSSubscriptionEmail1"
+    Type: "AWS::SNS::Subscription"
+    Properties:
+      Endpoint: !Ref "SNSSubscriptionEmail1"
+      Protocol: "email"
+      TopicArn: !Ref "SNSTopicAutoScalingGroupInstance"
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/Subscription/AutoScalingGroupInstanceEmail2
+  ##---------------------------------------------------------------------------------------
+  SNSSubscriptionAutoScalingGroupInstanceEmail2:
+    Condition: "ExistsSNSSubscriptionEmail2"
+    Type: "AWS::SNS::Subscription"
+    Properties:
+      Endpoint: !Ref "SNSSubscriptionEmail2"
+      Protocol: "email"
+      TopicArn: !Ref "SNSTopicAutoScalingGroupInstance"
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/Subscription/AutoScalingGroupInstanceEmail3
+  ##---------------------------------------------------------------------------------------
+  SNSSubscriptionAutoScalingGroupInstanceEmail3:
+    Condition: "ExistsSNSSubscriptionEmail3"
+    Type: "AWS::SNS::Subscription"
+    Properties:
+      Endpoint: !Ref "SNSSubscriptionEmail3"
+      Protocol: "email"
+      TopicArn: !Ref "SNSTopicAutoScalingGroupInstance"
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/Subscription/AutoScalingGroupInstanceEmail4
+  ##---------------------------------------------------------------------------------------
+  SNSSubscriptionAutoScalingGroupInstanceEmail4:
+    Condition: "ExistsSNSSubscriptionEmail4"
+    Type: "AWS::SNS::Subscription"
+    Properties:
+      Endpoint: !Ref "SNSSubscriptionEmail4"
+      Protocol: "email"
+      TopicArn: !Ref "SNSTopicAutoScalingGroupInstance"
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/Topic/AutoScalingGroupInstance
+  ##---------------------------------------------------------------------------------------
+  SNSTopicAutoScalingGroupInstance:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      TopicName: !Join [ "_", [ "asg", !Select [1, !Split ["|", !Ref "Project"]], !Select [1, !Split ["|", !Ref "Function"]], !Select [3, !Split ["|", !Ref "Organization"]], !Select [1, !Split ["|", !Ref "Organization"]], !Ref "AWS::Region" ] ]
+      DisplayName: !Join [ "_", [ "asg", !Select [1, !Split ["|", !Ref "Project"]], !Select [1, !Split ["|", !Ref "Function"]], !Select [3, !Split ["|", !Ref "Organization"]], !Select [1, !Split ["|", !Ref "Organization"]], !Ref "AWS::Region" ] ]
+
+##-------------------------------------------------------------------------------------------------
+Outputs:
+  ##---------------------------------------------------------------------------------------
+  # object: AutoScaling/AutoScalingGroupInstanceId
+  ##---------------------------------------------------------------------------------------
+  AutoScalingGroupInstanceId:
+    Description: "AutoScalingGroup (Instance): ID"
+    Value: !Ref "AutoScalingGroupInstance"
+    Export:
+      Name: !Sub "${AWS::StackName}-AutoScalingGroupInstanceId"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Contact
+  ##---------------------------------------------------------------------------------------
+  Contact:
+    Description: "Details: Contact"
+    Value: !Select [1, !Split ["|", !Ref "Owner"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-Contact"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Environment
+  ##---------------------------------------------------------------------------------------
+  Environment:
+    Description: "Details: Environment"
+    Value: !Select [3, !Split ["|", !Ref "Organization"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-Environment"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/FunctionAbbr
+  ##---------------------------------------------------------------------------------------
+  FunctionAbbr:
+    Description: "Details: FunctionAbbr"
+    Value: !Select [1, !Split ["|", !Ref "Function"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-FunctionAbbr"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/FunctionName
+  ##---------------------------------------------------------------------------------------
+  FunctionName:
+    Description: "Details: FunctionName"
+    Value: !Select [0, !Split ["|", !Ref "Function"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-FunctionName"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/LastUpdate
+  ##---------------------------------------------------------------------------------------
+  LastUpdate:
+    Description: "Details: LastUpdate"
+    Value: !Ref "LastUpdate"
+    Export:
+      Name: !Sub "${AWS::StackName}-LastUpdate"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/OrganizationAbbr
+  ##---------------------------------------------------------------------------------------
+  OrganizationAbbr:
+    Description: "Details: OrganizationAbbr"
+    Value: !Select [1, !Split ["|", !Ref "Organization"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-OrganizationAbbr"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/OrganizationName
+  ##---------------------------------------------------------------------------------------
+  OrganizationName:
+    Description: "Details: OrganizationName"
+    Value: !Select [0, !Split ["|", !Ref "Organization"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-OrganizationName"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/Owner
+  ##---------------------------------------------------------------------------------------
+  Owner:
+    Description: "Details: Owner"
+    Value: !Select [0, !Split ["|", !Ref "Owner"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-Owner"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/ProjectAbbr
+  ##---------------------------------------------------------------------------------------
+  ProjectAbbr:
+    Description: "Details: ProjectAbbr"
+    Value: !Select [1, !Split ["|", !Ref "Project"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-ProjectAbbr"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Details/ProjectName
+  ##---------------------------------------------------------------------------------------
+  ProjectName:
+    Description: "Details: ProjectName"
+    Value: !Select [0, !Split ["|", !Ref "Project"]]
+    Export:
+      Name: !Sub "${AWS::StackName}-ProjectName"
+
+  ##---------------------------------------------------------------------------------------
+  # object: EC2/LaunchTemplateInstanceId
+  ##---------------------------------------------------------------------------------------
+  LaunchTemplateInstanceId:
+    Description: "LaunchTemplate (Instance): ID"
+    Value: !Ref "LaunchTemplateInstance"
+    Export:
+      Name: !Sub "${AWS::StackName}-LaunchTemplateInstanceId"
+
+  ##---------------------------------------------------------------------------------------
+  # object: EIP/EIPInstanceAllocationId
+  ##---------------------------------------------------------------------------------------
+  EIPInstanceAllocationId:
+    Condition: "EnabledElasticIp"
+    Description: "Elastic IP (Instance): Allocation ID"
+    Value: !GetAtt "EIPInstance.AllocationId"
+    Export:
+      Name: !Sub "${AWS::StackName}-EIPInstanceAllocationId"
+
+  ##---------------------------------------------------------------------------------------
+  # object: EIP/EIPInstanceIpAddress
+  ##---------------------------------------------------------------------------------------
+  EIPInstanceIpAddress:
+    Condition: "EnabledElasticIp"
+    Description: "Elastic IP (Instance): IP Address"
+    Value: !Ref "EIPInstance"
+    Export:
+      Name: !Sub "${AWS::StackName}-EIPInstanceIpAddress"
+
+  ##---------------------------------------------------------------------------------------
+  # object: IAM/Role/RoleInstanceName
+  ##---------------------------------------------------------------------------------------
+  RoleInstanceName:
+    Description: "IAM Role (Instance): Name"
+    Value: !Ref "RoleInstance"
+    Export:
+      Name: !Sub "${AWS::StackName}-RoleInstanceName"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/InstanceDescription
+  ##---------------------------------------------------------------------------------------
+  InstanceDescription:
+    Description: "Instance Description"
+    Value: !Join [ "", [ !Select [0, !Split ["|", !Ref "Project"]], " - ", !Select [0, !Split ["|", !Ref "Function"]], " (", !Select [3, !Split ["|", !Ref "Organization"]], ") - [", !Select [0, !Split ["|", !Ref "Organization"]], "]" ] ]
+    Export:
+      Name: !Sub "${AWS::StackName}-InstanceDescription"
+
+  ##---------------------------------------------------------------------------------------
+  # object: Instance/SecurityGroupInstanceId
+  ##---------------------------------------------------------------------------------------
+  SecurityGroupInstanceId:
+    Description: "Security Group (Instance): ID"
+    Value: !Ref "SecurityGroupInstance"
+    Export:
+      Name: !Sub "${AWS::StackName}-SecurityGroupInstanceId"
+
+  ##---------------------------------------------------------------------------------------
+  # object: LoadBalancer/LoadBalancerEnabledFalse
+  ##---------------------------------------------------------------------------------------
+  LoadBalancerEnabled:
+    Description: "LoadBalancer: Enabled Flag"
+    Value: "false"
+    Export:
+      Name: !Sub "${AWS::StackName}-LoadBalancerEnabled"
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/Topic/AutoScalingGroupInstanceArn
+  ##---------------------------------------------------------------------------------------
+  SNSTopicAutoScalingGroupInstanceArn:
+    Description: "SNS Topic (AutoScalingGroupInstance): ARN"
+    Value: !Ref "SNSTopicAutoScalingGroupInstance"
+    Export:
+      Name: !Sub "${AWS::StackName}-SNSTopicAutoScalingGroupInstanceArn"
+
+  ##---------------------------------------------------------------------------------------
+  # object: SNS/Topic/AutoScalingGroupInstanceTopicName
+  ##---------------------------------------------------------------------------------------
+  SNSTopicAutoScalingGroupInstanceTopicName:
+    Description: "SNS Topic (AutoScalingGroupInstance): Topic Name"
+    Value: !GetAtt "SNSTopicAutoScalingGroupInstance.TopicName"
+    Export:
+      Name: !Sub "${AWS::StackName}-SNSTopicAutoScalingGroupInstanceTopicName"
+
+  ##---------------------------------------------------------------------------------------
+  # object: VPC/VPCStackName
+  ##---------------------------------------------------------------------------------------
+  VPCStackName:
+    Description: "VPC: Stack Name"
+    Value: !Join [ "", [ "infrastructure-vpc-", !Select [1, !Split ["|", !Ref "Organization"]], "-", !Select [2, !Split ["|", !Ref "Organization"]] ] ]
+    Export:
+      Name: !Sub "${AWS::StackName}-VPCStackName"
+

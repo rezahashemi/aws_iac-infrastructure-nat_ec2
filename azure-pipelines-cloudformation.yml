@@ -1,0 +1,74 @@
+##-------------------------------------------------------------------------------------------------
+# purpose: AWS IaC - Infrastructure - NAT [EC2] (CloudFormation)
+##-------------------------------------------------------------------------------------------------
+name: $(Date:yyyy.MM.dd)$(Rev:.r)
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - /infrastructure/cloudformation
+
+##-------------------------------------------------------------------------------------------------
+variables:
+  - name: build.subdirectory
+    value: 'infrastructure/cloudformation'
+
+  - name: artifact.id
+    value: 'infrastructure-nat_cloudformation'
+  - name: artifact.version
+    value: $(Build.BuildNumber)
+
+  - name: init.azure_devops
+    value: yes
+
+##-------------------------------------------------------------------------------------------------
+jobs:
+
+##---------------------------------------------------------------------------------------
+- job: build
+  displayName: 'Build'
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  workspace:
+    clean: all
+
+  steps:
+  ##-----------------------------------------------------------------------------
+  # Setup
+  - script: |
+      CID_URL_LATEST="$(curl -s https://api.github.com/repos/AutomateTheCloud/atc-cid/releases/latest | grep "browser_download_url.*tgz" | cut -d : -f 2,3 | tr -d \" | awk '{$1=$1};1')"
+      sudo mkdir -p /opt/cid
+      curl -L ${CID_URL_LATEST} | sudo tar zxf - -C /opt/cid
+      sudo bash /opt/cid/scripts/utility/install.sh -d /usr/local/sbin/
+    displayName: 'Setup - Install'
+    name: setup_install
+
+  - script: |
+      cid.initialize_workspace
+    displayName: 'Setup - Initialize Workspace'
+    name: setup_initialize
+
+  ##-----------------------------------------------------------------------------
+  # Package
+  - task: ArchiveFiles@2
+    displayName: 'Package - Generate Package Tarball'
+    inputs:
+      rootFolderOrFile: $(Build.SourcesDirectory)/$(build.subdirectory)
+      includeRootFolder: false
+      archiveType: 'tar'
+      tarCompression: 'gz'
+      archiveFile: '$(workspace.directory.artifacts)/$(artifact.id)-$(artifact.version).tgz'
+      replaceExistingArchive: true
+      verbose: true
+
+  ##-----------------------------------------------------------------------------
+  # Archive
+  - task: PublishBuildArtifacts@1
+    displayName: 'Archive - Publish Pipeline Build Artifacts'
+    inputs:
+      pathtoPublish: '$(workspace.directory.artifacts)'
+      artifactName: 'build'
