@@ -1,6 +1,6 @@
 Name:                                       nat-share-prd-us-east-1
 Description:                                NAT - Shared Services (prd) - us-east-1
-Updated:                                    2019/10/06 17:35:00 EST
+Updated:                                    2019/10/07 21:00:00 EST
 
 Details:
   Project:                                  NAT|nat
@@ -24,7 +24,7 @@ Parameters:
   KeypairOverride:
 
   #-- AutoScaling -----------------------------------------------------------------------
-  LaunchTemplateUpdated:                    2019/10/06 17:35:00 EST
+  LaunchTemplateUpdated:                    2019/10/07 21:00:00 EST
   AutoScalingDetails:                       2|0|360|900|PT15M
 
   #-- Network Related -------------------------------------------------------------------
