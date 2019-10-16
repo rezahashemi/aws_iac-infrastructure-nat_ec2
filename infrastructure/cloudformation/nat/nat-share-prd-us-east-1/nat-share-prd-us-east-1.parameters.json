@@ -7,7 +7,7 @@
   { "ParameterKey": "InstanceType", "ParameterValue": "t3.nano|t2.nano" },
   { "ParameterKey": "InstanceUsers", "ParameterValue": "" },
   { "ParameterKey": "KeypairOverride", "ParameterValue": "" },
-  { "ParameterKey": "LastUpdate", "ParameterValue": "2019-10-08 01:04:53.125 UTC" },
+  { "ParameterKey": "LastUpdate", "ParameterValue": "2019-10-16 13:12:33.314 UTC" },
   { "ParameterKey": "LaunchTemplateUpdated", "ParameterValue": "2019/10/07 21:00:00 EST" },
   { "ParameterKey": "Organization", "ParameterValue": "Shared Services|share|us-east-1|prd" },
   { "ParameterKey": "Owner", "ParameterValue": "David Singer|aws-ops@automatethe.cloud" },

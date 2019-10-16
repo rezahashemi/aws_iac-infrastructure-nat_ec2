@@ -1635,20 +1635,20 @@ Outputs:
   ##---------------------------------------------------------------------------------------
   # object: SNS/Topic/AutoScalingGroupInstanceArn
   ##---------------------------------------------------------------------------------------
-  SNSTopicAutoScalingGroupInstanceArn:
+  SNSTopicArn:
     Description: "SNS Topic (AutoScalingGroupInstance): ARN"
     Value: !Ref "SNSTopicAutoScalingGroupInstance"
     Export:
-      Name: !Sub "${AWS::StackName}-SNSTopicAutoScalingGroupInstanceArn"
+      Name: !Sub "${AWS::StackName}-SNSTopicArn"
 
   ##---------------------------------------------------------------------------------------
   # object: SNS/Topic/AutoScalingGroupInstanceTopicName
   ##---------------------------------------------------------------------------------------
-  SNSTopicAutoScalingGroupInstanceTopicName:
+  SNSTopicName:
     Description: "SNS Topic (AutoScalingGroupInstance): Topic Name"
     Value: !GetAtt "SNSTopicAutoScalingGroupInstance.TopicName"
     Export:
-      Name: !Sub "${AWS::StackName}-SNSTopicAutoScalingGroupInstanceTopicName"
+      Name: !Sub "${AWS::StackName}-SNSTopicName"
 
   ##---------------------------------------------------------------------------------------
   # object: VPC/VPCStackName
